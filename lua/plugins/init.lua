@@ -1,10 +1,32 @@
 return {
   -- Gruvbox Theme
-  {
-    "ellisonleao/gruvbox.nvim",
-    priority = 1000,
-    config = true,
-  },
+  
+  { "ellisonleao/gruvbox.nvim", priority = 1000 , config = true, opts = ...},
+
+   {
+
+      'romgrk/barbar.nvim',
+      dependencies = {
+        'lewis6991/gitsigns.nvim',     -- for git status
+        'nvim-tree/nvim-web-devicons', -- for file icons
+      },
+      init = function() vim.g.barbar_auto_setup = false end,
+      opts = {
+        animation = true,
+        insert_at_start = false,
+        sidebar_filetypes = {
+          NvimTree = true,
+          undotree = {
+            text = 'undotree',
+            align = 'center', -- *optionally* specify an alignment (either 'left', 'center', or 'right')
+          },
+          ['neo-tree'] = { event = 'BufWipeout' },
+          Outline = { event = 'BufWinLeave', text = 'symbols-outline', align = 'right' },
+        },
+      },
+      version = '^1.0.0',
+    },
+
 
   -- Treesitter
   {
@@ -13,12 +35,45 @@ return {
     config = function()
       local config = require("nvim-treesitter.configs")
       config.setup({
-        ensure_installed = { "lua", "javascript", "python", "cmake", "html", "css" },
+       ensure_installed = {
+  "c", -- Treesitter Parser for C
+  "cpp", -- Treesitter Parser for C++
+  "json",
+  "javascript",
+  "typescript",
+  "yaml",
+  "html",
+  "css",
+  "markdown",
+  "markdown_inline",
+  "bash",
+  "lua",
+  "vim",
+  "dockerfile",
+  "gitignore",
+  "tsx",
+  "go",
+  "zig",
+  "java",
+  "rust",
+},
         highlight = { enable = true },
         indent = { enable = true }, -- Enable treesitter indentation
       })
     end
   },
+
+{
+        "nvim-lualine/lualine.nvim",
+        dependencies = { "nvim-tree/nvim-web-devicons" }, -- Optional: for icons
+        config = function()
+            require("lualine").setup {
+                options = {
+                    theme = "gruvbox", -- Or set your custom theme
+                },
+            }
+        end
+    },
 
   -- Indent guides
   {
@@ -94,7 +149,7 @@ return {
       "MunifTanjim/nui.nvim",
     },
     keys = {
-      { '<C-n>', ':Neotree filesystem reveal left<CR>', desc = 'Toggle Neo-tree' },
+      { '<C-n>', ':Neotree filesystem reveal right<CR>', desc = 'Toggle Neo-tree' },
     },
   },
 
@@ -113,7 +168,7 @@ return {
     config = function()
       local cmp = require('cmp')
       local luasnip = require('luasnip')
-      
+
       require('luasnip.loaders.from_vscode').lazy_load()
 
       cmp.setup({
@@ -167,7 +222,7 @@ return {
     config = function()
       require('mason').setup()
       require('mason-lspconfig').setup({
-        ensure_installed = { 'lua_ls', 'pyright', 'tsserver', 'html', 'cssls' },
+        ensure_installed = { 'lua_ls', 'pyright', 'ts_ls', 'html', 'cssls' },
         automatic_installation = true,
       })
 
@@ -177,9 +232,93 @@ return {
       -- Set up each LSP server
       lspconfig.lua_ls.setup({ capabilities = capabilities })
       lspconfig.pyright.setup({ capabilities = capabilities })
-      lspconfig.tsserver.setup({ capabilities = capabilities })
+      lspconfig.ts_ls.setup({ capabilities = capabilities,   init_options = {
+    preferences = {
+      disableSuggestions = false,
+    }, }})
       lspconfig.html.setup({ capabilities = capabilities })
       lspconfig.cssls.setup({ capabilities = capabilities })
     end
   },
+
+
+    {
+      'numToStr/Comment.nvim',
+      opts = {},
+      config = function()
+        require('Comment').setup({
+          padding = true,
+          sticky = true,
+          ignore = nil,
+
+          toggler = {
+            line = 'gcc',
+            block = 'gbc',
+          },
+
+          opleader = {
+            line = 'gc',
+            block = 'gb',
+          },
+
+          -- extra mapping
+          extra = {
+            above = 'gcO',
+            below = 'gco',
+            eol = 'gcA',
+          },
+
+          -- enable keybinds
+          mappings = {
+            basic = true,
+            extra = true,
+          },
+
+          pre_hook = nil,
+          post_hook = nil,
+        })
+      end,
+    },
+        {
+      "nvim-treesitter/nvim-treesitter",
+      config = function()
+        require('nvim-treesitter').setup({
+          ensure_installed = { "lua", "vim", "vimdoc", "query", "markdown", "markdown_inline", },
+          sync_install = true,
+
+          auto_install = true,
+
+          -- ignore_install = { "javascript" },
+
+          highlight = {
+            enable = true,
+
+            disable = function(lang, buf)
+              local max_filesize = 100 * 1024 -- 100 KB
+              local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(buf))
+              if ok and stats and stats.size > max_filesize then
+                return true
+              end
+            end,
+
+            additional_vim_regex_highlighting = false,
+          },
+        })
+      end,
+    },
+  {
+      'goolord/alpha-nvim',
+      dependencies = {
+        'echasnovski/mini.icons',
+        'nvim-lua/plenary.nvim'
+      },
+      config = function()
+        require 'alpha'.setup(require 'alpha.themes.theta'.config)
+      end
+    },
+
+    {
+      "akinsho/bufferline.nvim",
+      version = "*",
+    },
 }
