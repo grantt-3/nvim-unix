@@ -171,8 +171,14 @@ require("lazy").setup({
             }
         end,
     },
-{"tpope/copilot.vim", event = "VimEnter", cmd = "Copilot", setup = function(), config = function() vim.g.copilot#enable() end},
-    {
+{
+    "github/copilot.vim",
+    event = "VimEnter",
+    config = function()
+        vim.g.copilot_enabled = true
+    end
+},
+{
         'windwp/nvim-autopairs',
         event = "InsertEnter",
         config = function()
