@@ -64,25 +64,87 @@ augroup END
 -- Plugin specifications
 require("lazy").setup({
     -- Theme
-    --   -- Theme
+    -- Theme
+    -- {
+    -- -- You can easily change to a different colorscheme.
+    -- -- Change the name of the colorscheme plugin below, and then
+    -- -- change the command in the config to whatever the name of that colorscheme is.
+    -- --
+    -- -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
+    -- --'folke/tokyonight.nvim',
+    --    "catppuccin/nvim",
+    -- --'tokyonight-moon/nvim',
+    --  name = 'catppuccin',
+    --  priority = 1000, -- Make sure to load this before all the other start plugins.
+    --  init = function()
+    -- --
+    --  -- Load the colorscheme here.
+    --  -- Like many other themes, this one has different styles, and you could load
+    --  -- any other, such as 'catppuccin', 'tokyonight-moon', or 'tokyonight-day'.
+    --    vim.cmd.colorscheme 'catppuccin'
+    -- -- You can configure highlights by doing something like:
+    --  vim.cmd.hi 'Comment gui=none'
+    --  end,
+    --  },
+   {
+    "catppuccin/nvim",
+    name = "catppuccin",
+    priority = 1000,
+    config = function()
+        require("catppuccin").setup({
+            transparent_background = true, -- make background transparent
+            custom_highlights = {
+                -- Optionally customize specific highlights
+                Normal = { bg = "NONE" },
+                NormalFloat = { bg = "NONE" },
+                NvimTreeNormal = { bg = "NONE" },
+            },
+        })
+        vim.cmd.colorscheme 'catppuccin'
+    end,
+},
     {
-        -- You can easily change to a different colorscheme.
-        -- Change the name of the colorscheme plugin below, and then
-        -- change the command in the config to whatever the name of that colorscheme is.
-        --
-        -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
-        -- 'folke/tokyonight.nvim',
-        'catppuccin/nvim',
-        name = 'catppuccin',
-        priority = 1000, -- Make sure to load this before all the other start plugins.
-        init = function()
-            -- Load the colorscheme here.
-            -- Like many other themes, this one has different styles, and you could load
-            -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-            vim.cmd.colorscheme 'catppuccin'
-            -- You can configure highlights by doing something like:
-            vim.cmd.hi 'Comment gui=none'
-        end,
+        'saghen/blink.cmp',
+        dependencies = 'rafamadriz/friendly-snippets',
+        build = "cargo build --release",
+        -- version = 'v0.*',
+        opts = {
+            keymap = { preset = 'default' },
+
+            appearance = {
+                use_nvim_cmp_as_default = true,
+                nerd_font_variant = 'mono'
+            },
+
+            signature = { enabled = true }
+        },
+        config = function()
+        end
+    },
+
+    -- -- Using lazy.nvim
+    -- {
+    --     'rose-pine/neovim',
+    --     name = 'rose-pine',
+    --     config = function()
+    --         require('rose-pine').setup({
+    --             --- @usage 'auto'|'main'|'moon'|'dawn'
+    --             variant = 'auto',
+    --             dark_variant = 'main',
+    --             bold_vert_split = false,
+    --             dim_nc_background = false,
+    --             disable_background = false,
+    --             disable_float_background = false,
+    --             disable_italics = false,
+    --         })
+    --         vim.cmd('colorscheme rose-pine')
+    --     end
+    -- },
+    {
+        'numToStr/Comment.nvim',
+        config = function()
+            require('Comment').setup()
+        end
     },
 
     -- Additional transparency settings
@@ -139,6 +201,7 @@ require("lazy").setup({
                 sources = {
                     -- Prettier for multiple languages
                     null_ls.builtins.formatting.prettier,
+                    null_ls.builtins.formatting.rustfmt,
                 },
                 on_attach = function(client, bufnr)
                     if client.supports_method("textDocument/formatting") then
@@ -156,6 +219,15 @@ require("lazy").setup({
                     end
                 end
             })
+        end
+    },
+    {
+        "github/copilot.vim",
+        event = "VimEnter",
+        config = function()
+            vim.g.copilot_enabled = true
+            vim.keymap.set('n', '<A-c>', '<Cmd>Copilot<CR>',
+                { noremap = true, silent = true, desc = 'Copilot' })
         end
     },
     {
@@ -211,7 +283,7 @@ require("lazy").setup({
 
                 -- Specific rules for different scenarios
                 map_cr = true,
-                map_bs = true, -- map backspace
+                map_bs = true,   -- map backspace
                 map_c_h = false, -- Map <C-h> to delete pairs
             })
 
@@ -265,7 +337,7 @@ require("lazy").setup({
             'hrsh7th/nvim-cmp', -- Optional: for completion integration
         }
     },
-    {                   -- Useful plugin to show you pending keybinds.
+    {                       -- Useful plugin to show you pending keybinds.
         'folke/which-key.nvim',
         event = 'VimEnter', -- Sets the loading event to 'VimEnter'
         opts = {
@@ -340,20 +412,20 @@ require("lazy").setup({
         },
         config = function()
             require("neo-tree").setup({
-                close_if_last_window = true,  -- Close Neotree if it's the last window
+                close_if_last_window = true,            -- Close Neotree if it's the last window
                 filesystem = {
-                    follow_current_file = false, -- Don't automatically focus the current file
+                    follow_current_file = false,        -- Don't automatically focus the current file
                     hijack_netrw_behavior = "disabled", -- Disable netrw completely
                     filtered_items = {
-                        visible = true,       -- Make all files, including dotfiles, visible
-                        hide_dotfiles = false, -- Show dotfiles
-                        hide_gitignored = false, -- Show git-ignored files
-                        hide_hidden = false,  -- Show hidden files
+                        visible = true,                 -- Make all files, including dotfiles, visible
+                        hide_dotfiles = false,          -- Show dotfiles
+                        hide_gitignored = false,        -- Show git-ignored files
+                        hide_hidden = false,            -- Show hidden files
                     },
                 },
                 window = {
                     position = "left", -- Set Neotree to open on the right
-                    width = 40, -- Width of the Neotree window
+                    width = 30,        -- Width of the Neotree window
                 },
             })
 
@@ -407,7 +479,7 @@ require("lazy").setup({
             icons = {
                 buffer_index = true, -- Show buffer index in the tabline
                 buffer_number = false,
-                button = '×', -- Close button
+                button = '×',        -- Close button
                 diagnostics = {
                     [vim.diagnostic.severity.ERROR] = { enabled = true, icon = '✘' },
                     [vim.diagnostic.severity.WARN] = { enabled = true, icon = '⚠' },
@@ -415,7 +487,7 @@ require("lazy").setup({
                     [vim.diagnostic.severity.HINT] = { enabled = true, icon = '💡' },
                 },
                 filetype = {
-                    enabled = true, -- Enable file type icons
+                    enabled = true,       -- Enable file type icons
                     custom_colors = true, -- Use custom colors for file type icons
                 },
                 separator = {
